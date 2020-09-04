@@ -1,0 +1,26 @@
+#!/bin/sh
+exec tail -n +3 $0
+# This file provides an easy way to add custom menu entries.  Simply type the
+# menu entries you want to add after this comment.  Be careful not to change
+# the 'exec tail' line above.
+
+set imagepath="dev3UUID"
+set temppath1="dev1UUID"
+set temppath2="dev7UUID"
+set isofile="/nfsbr.iso"
+menuentry "Backup System" {
+    load_video
+    set gfxpayload=keep
+    insmod gzio
+    insmod part_msdos
+    insmod part_gpt
+    insmod ext2
+
+    insmod loopback
+
+    search --no-floppy --fs-uuid --set=root $imagepath
+
+    loopback loop $isofile
+    linuxefi (loop)/live/vmlinuz boot=live config ip=frommedia noswap edd=on nomodeset noprompt keyboard-layouts=\"NONE\" locales=\"zh_CN.UTF-8\" ocs_prerun=\"mount UUID=$imagepath /mnt/\" ocs_prerun1=\"mount --bind /mnt/image/ /home/partimag/\" ocs_prerun2=\"mount UUID=$temppath1 /media\" ocs_prerun3=\"mv /media/EFI/nfs/grubenv.bak /media/EFI/nfs/grubenv\" ocs_prerun4=\"mv /media/EFI/nfs/grub.cfg.bak /media/EFI/nfs/grub.cfg\" ocs_prerun5=\"umount /media\" ocs_prerun6=\"mount UUID=$temppath2 /media\" ocs_prerun7=\"rm -rf /media/etc/grub.d/05_custom\" ocs_prerun8=\"umount /media\" ocs_live_run=\"sudo bash /mnt/efi-script/backup-init-image\" ocs_live_batch=\"yes\" ocs_live_extra_param=\"\" vga=788 nolocales nosplash toram=filesystem.squashfs findiso=$isofile
+    initrdefi (loop)/live/initrd.img
+}

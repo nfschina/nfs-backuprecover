@@ -1,0 +1,24 @@
+#!/bin/sh
+#exec tail -n +3 $0
+
+#recovery_dev is the images part of device.
+recovery_dev="/dev/sda3"
+recovery_uuid=`blkid $recovery_dev | awk -F '"' '{print $2}'`
+isofile="/nfsbr.iso"
+
+cat << EOF
+menuentry "备份 & 还原系统" {
+    load_video
+    set gfxpayload=keep
+    insmod gzio
+    insmod part_msdos
+    insmod part_gpt
+    insmod ext2
+    insmod loopback
+
+    search --no-floppy --fs-uuid --set=root $recovery_uuid
+    loopback loop $isofile
+    linuxefi (loop)/live/vmlinuz boot=live config ip=frommedia noswap edd=on nomodeset noprompt keyboard-layouts=\"NONE\" locales=\"zh_CN.UTF-8\" ocs_prerun=\"mount UUID=$recovery_uuid /mnt/\"  ocs_prerun1=\"mount --bind /mnt/image/ /home/partimag/\" vga=788 nolocales nosplash toram=filesystem.squashfs findiso=$isofile
+    initrdefi (loop)/live/initrd.img
+}
+EOF

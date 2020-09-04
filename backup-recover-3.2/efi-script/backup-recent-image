@@ -1,0 +1,32 @@
+#!/bin/bash
+
+sd=`mount  | grep "mnt" | cut -b 6-8`
+
+parts="${sd}1 ${sd}2 ${sd}8"
+
+if [ $# -gt 0 ]
+then
+    image=$1
+else
+    image="recent-image"
+fi
+
+logToMediaMessages() {
+    currTime=$(LANG=C date "+%b %d %H:%M:%S localhost")
+    echo "$currTime BackupRecover[9999]: $1" >> /media/messages
+}
+
+mount /dev/${sd}5 /media
+
+#logToMediaMessages "uefi mode, backup recent image start."
+rc=ocs-sr -q2 -j2 -z1p -i 2000 --nogui -p true saveparts $image $parts
+rc=$?
+
+if [ $rc -ne 0 ]
+then
+    rm -rf /mnt/image/$image
+    logToMediaMessages "uefi mode, backup recent image $image failed, error code: $rc."
+else
+    logToMediaMessages "uefi mode, backup recent image $image success."
+fi
+exit $rc

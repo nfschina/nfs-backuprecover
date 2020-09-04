@@ -1,0 +1,25 @@
+#!/bin/bash
+
+logToMediaMessages() {
+    currTime=$(LANG=C date "+%b %d %H:%M:%S localhost")
+    echo "$currTime BackupRecover[9999]: $1" >> /media/messages
+}
+
+sd=`mount  | grep "mnt" | cut -b 6-8`
+
+parts="${sd}1 ${sd}2 ${sd}8"
+
+mount /dev/${sd}5 /media
+
+#logToMediaMessages "uefi mode, reocver from factory image start."
+ocs-sr -q2 -j2 -k -z1p -i 2000 --nogui  -p true restoreparts init-image $parts
+rc=$?
+
+if [ $rc -ne 0 ]
+then
+    logToMediaMessages "uefi mode, reocver from factory failed, error code: $rc."
+else
+    logToMediaMessages "uefi mode, reocver from factory success."
+fi
+exit $rc
+

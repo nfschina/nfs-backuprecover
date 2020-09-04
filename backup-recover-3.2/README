@@ -1,0 +1,14 @@
+This package is used to backup and recover nfs server system.
+Now, it only support efi mode.
+
+How to use
+=======================
+1. Before used,  you have to part a single  partition of device, named "recovery", and mount to "/". 
+   This partition is used to store images and some shell files；
+2. `df -l ` find the "/recovery" device, for example "/dev/sda3"；
+3. Edit 50_custom_backup.efi, set the value of $recovery_dev,
+   this value is the uuid of "/recovery" after updated grub file.
+4. Edit shell files in “efi-script”, set the value of $parts
+   $parts is the partitions of backup and recover, like /, /boot, /boot/efi partition;
+5. Rebuild your package, and install;
+6. Use "grub2-mkconfig", update your grub.cfg file.

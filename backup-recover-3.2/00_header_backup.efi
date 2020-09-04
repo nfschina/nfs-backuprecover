@@ -1,0 +1,9 @@
+#!/bin/sh
+exec tail -n +3 $0
+#support lang.zh_CN
+set gfxterm_font=unicode
+set lang=zh_CN
+set locale_dir=$prefix/locale
+insmod gfxterm
+terminal_output  gfxterm
+loadfont unicode
